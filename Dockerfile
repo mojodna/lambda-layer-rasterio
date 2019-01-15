@@ -7,8 +7,8 @@ ARG GDAL_VERSION=2.4.0
 ARG LIBJPEG_TURBO_VERSION=2.0.1
 ARG NGHTTP2_VERSION=1.35.1
 ARG PROJ_VERSION=5.2.0
-# TODO webp
-# TODO ZSTD
+ARG WEBP_VERSION=1.0.1
+ARG LIBZSTD_VERSION=1.3.8
 
 # Install deps
 
@@ -58,6 +58,29 @@ RUN mkdir -p /tmp/libjpeg-turbo \
   && cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/opt . \
   && make -j $(nproc) install
 
+## webp
+
+RUN mkdir -p /tmp/webp \
+    && cd /tmp/webp \
+    && curl -f -L -O https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${WEBP_VERSION}.tar.gz \
+    && tar xzf libwebp-${WEBP_VERSION}.tar.gz \
+    && cd libwebp-${WEBP_VERSION} \
+    && CFLAGS="-O2" ./configure --prefix=/opt \
+    && make \
+    && make install
+
+## libszstd
+
+RUN mkdir -p /tmp/libszstd \
+    && cd /tmp/libszstd \
+    && curl -f -L -O https://github.com/facebook/zstd/archive/v${LIBZSTD_VERSION}.zip \
+    && unzip v${LIBZSTD_VERSION}.zip \
+    && cd zstd-${LIBZSTD_VERSION} \
+    && make \
+    && make install \
+    && cp /tmp/libszstd/zstd-${LIBZSTD_VERSION}/lib/libzstd.so.* /opt/lib/
+
+
 # Fetch GDAL
 
 RUN \
@@ -82,7 +105,9 @@ RUN \
     --without-png \
     --without-gif \
     --with-jpeg=/opt \
-    --without-pcidsk && \
+    --without-pcidsk \
+    --with-webp \
+    --with-zstd && \
   make -j $(nproc) && \
   make -j $(nproc) install
 
