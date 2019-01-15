@@ -58,6 +58,29 @@ RUN mkdir -p /tmp/libjpeg-turbo \
   && cmake -G"Unix Makefiles" -DCMAKE_INSTALL_PREFIX=/opt . \
   && make -j $(nproc) install
 
+## webp
+
+RUN mkdir -p /tmp/webp \
+    && cd /tmp/webp \
+    && curl -f -L -O https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.0.0.tar.gz \
+    && tar xzf libwebp-1.0.0.tar.gz \
+    && cd libwebp-1.0.0 \
+    && CFLAGS="-O2" ./configure --prefix=/opt \
+    && make \
+    && make install
+
+## libszstd
+
+RUN mkdir -p /tmp/libszstd \
+    && cd /tmp/libszstd \
+    && curl -f -L -O https://github.com/facebook/zstd/archive/dev.zip \
+    && unzip dev.zip \
+    && cd zstd-dev \
+    && make \
+    && make install \
+    && cp /tmp/libszstd/zstd-dev/lib/libzstd.so.* /opt/lib/
+
+
 # Fetch GDAL
 
 RUN \
@@ -82,7 +105,9 @@ RUN \
     --without-png \
     --without-gif \
     --with-jpeg=/opt \
-    --without-pcidsk && \
+    --without-pcidsk \
+    --with-webp \
+    --with-zstd && \
   make -j $(nproc) && \
   make -j $(nproc) install
 
