@@ -124,7 +124,7 @@ RUN \
   pip3 install -U rasterio --no-binary rasterio -t python/
 
 # delete build deps, symlinks, etc.
-RUN cp -aR lib64/ lib/ && rm -rf lib64/
+RUN cp -aR lib64/* lib/ && rm -rf lib64/
 RUN find lib -name \*.la -delete
 RUN find lib -name \*.a -delete
 RUN rm -rf python/Cython*
