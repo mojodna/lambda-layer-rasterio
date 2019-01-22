@@ -17,8 +17,7 @@ RUN \
   yum install -y \
     automake16 \
     libpng-devel \
-    nasm \
-    rsync
+    nasm
 
 # Fetch and build nghttp2
 
@@ -125,7 +124,7 @@ RUN \
   pip3 install -U rasterio --no-binary rasterio -t python/
 
 # delete build deps, symlinks, etc.
-RUN rsync -a lib64/ lib/ && rm -rf lib64/
+RUN cp -aR lib64/ lib/ && rm -rf lib64/
 RUN find lib -name \*.la -delete
 RUN find lib -name \*.a -delete
 RUN rm -rf python/Cython*
